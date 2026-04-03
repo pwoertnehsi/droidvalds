@@ -1,0 +1,11 @@
+[Unit]
+Description=SystemD Linus Droidvalds GCC Virus
+After=graphical-session.target
+
+[Service]
+Type=simple
+PassEnvironment=DISPLAY XAUTHORITY
+ExecStart=/usr/bin/bash /usr/bin/droidvalds
+Restart=on-failure
+[Install]
+WantedBy=graphical-session.target

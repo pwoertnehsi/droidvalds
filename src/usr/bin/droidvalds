@@ -1,0 +1,23 @@
+#!/bin/bash
+
+mpv_run="mpv --no-osc --no-border --volume=40 --fs --no-osd-bar"
+
+video_path="/usr/share/droidvalds"
+
+case "$(($RANDOM % 5))" in
+	0) video_to_run="${video_path}/astralinuxrpmredhatgcc.mp4";;
+	1) video_to_run="${video_path}/kibroglinusdroidvaldsgccvirus.mp4";;
+	2) video_to_run="${video_path}/everybodylovessytemd.mp4";;
+	3) video_to_run="${video_path}/ageverificationd.mp4";;
+	4) video_to_run="${video_path}/linuxdroid.mp4";;
+esac
+
+monitor_count=$(($(xrandr --listmonitors | wc -l) - 1))
+sound=""
+
+for ((monitor_count; monitor_count >= 1; monitor_count--)); do
+	$mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
+	sound="--mute=yes"
+done
+
+wait
