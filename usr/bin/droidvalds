@@ -15,9 +15,25 @@ esac
 monitor_count=$(($(xrandr --listmonitors | wc -l) - 1))
 sound=""
 
-for ((monitor_count; monitor_count >= 1; monitor_count--)); do
-	$mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
-	sound="--mute=yes"
-done
+if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
+
+    monitors=$(niri msg --json outputs | jq -r 'keys[]')
+
+    for mon in $monitors; do
+        niri msg action focus-monitor "$mon"
+
+        $mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
+
+        sleep 0.2
+
+        sound="--mute=yes"
+    done
+else
+    for ((monitor_count; monitor_count >= 1; monitor_count--)); do
+        $mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
+
+        sound="--mute=yes"
+    done
+fi
 
 wait
