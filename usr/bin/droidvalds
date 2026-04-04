@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 mpv_run="mpv --no-osc --no-border --volume=40 --fs --no-osd-bar"
 
