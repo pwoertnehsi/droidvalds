@@ -2,15 +2,12 @@
 
 mpv_run="mpv --no-osc --no-border --volume=40 --fs --no-osd-bar"
 video_path="/usr/share/droidvalds"
-monitor_count=$(($(xrandr --listmonitors | wc -l) - 1))
 random_video=$(ls -1 ${video_path} | shuf -n 1)
-sound=""
 
-#echo $random_video
-#echo $(ls -1 $video_path)
+monitor_count=$(($(xrandr --listmonitors | wc -l) - 1))
 
-if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
-
+# Implementations for different environments
+spawn_niri() {
     monitors=$(niri msg --json outputs | jq -r 'keys[]')
 
     for mon in $monitors; do
@@ -22,12 +19,25 @@ if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
 
         sound="--mute=yes"
     done
-else
+}
+
+spawn_other() { # Works for KDE
     for ((monitor_count; monitor_count >= 1; monitor_count--)); do
         $mpv_run --fs-screen=$monitor_count $video_path/$random_video $sound > /dev/null 2>&1 &
 
         sound="--mute=yes"
     done
-fi
+}
 
-wait
+# Check for environment and script action
+
+sound=""
+
+case "$XDG_CURRENT_DESKTOP" in
+    "niri")
+        spawn_niri
+        ;;
+    *)
+        spawn_other
+        ;;
+esac
