@@ -1,21 +1,13 @@
 #!/usr/bin/env bash
 
 mpv_run="mpv --no-osc --no-border --volume=40 --fs --no-osd-bar"
-
 video_path="/usr/share/droidvalds"
-
-case "$(($RANDOM % 7))" in
-	0) video_to_run="${video_path}/astralinuxrpmredhatgcc.mp4";;
-	1) video_to_run="${video_path}/kibroglinusdroidvaldsgccvirus.mp4";;
-	2) video_to_run="${video_path}/everybodylovessytemd.mp4";;
-	3) video_to_run="${video_path}/ageverificationd.mp4";;
-	4) video_to_run="${video_path}/linuxdroid.mp4";;
-	5) video_to_run="${video_path}/ilovethiscompany.mp4";;
-	6) video_to_run="${video_path}/systemdfashdetectd.mp4";;
-esac
-
 monitor_count=$(($(xrandr --listmonitors | wc -l) - 1))
+random_video=$(ls -1 ${video_path} | shuf -n 1)
 sound=""
+
+#echo $random_video
+#echo $(ls -1 $video_path)
 
 if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
 
@@ -24,7 +16,7 @@ if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
     for mon in $monitors; do
         niri msg action focus-monitor "$mon"
 
-        $mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
+        $mpv_run --fs-screen=$monitor_count $video_path/$random_video $sound > /dev/null 2>&1 &
 
         sleep 0.2
 
@@ -32,7 +24,7 @@ if [[ "$XDG_CURRENT_DESKTOP" == "niri" ]]; then
     done
 else
     for ((monitor_count; monitor_count >= 1; monitor_count--)); do
-        $mpv_run --fs-screen=$monitor_count $video_to_run $sound > /dev/null 2>&1 &
+        $mpv_run --fs-screen=$monitor_count $video_path/$random_video $sound > /dev/null 2>&1 &
 
         sound="--mute=yes"
     done
