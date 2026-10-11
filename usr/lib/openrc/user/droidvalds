@@ -1,0 +1,50 @@
+#!/sbin/openrc-run
+
+description="SystemD Linus Droidvalds GCC Virus"
+
+# 1. REMOVE supervisor="supervise-daemon" and replace with standard backgrounding
+command="/usr/bin/droidvalds"
+command_background=true
+
+rc_env_allow="DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR HOME USER"
+
+pidfile="${XDG_RUNTIME_DIR:-/run/user/1000}/droidvalds.pid"
+output_log="${HOME}/droidvalds.log"
+error_log="${HOME}/droidvalds.err"
+
+start_pre() {
+	checkpath -d -m 0700 -o "${USER}" "$(dirname "${output_log}")"
+
+	local attempt=0
+	while [ ${attempt} -lt 20 ]; do
+		if [ -z "${WAYLAND_DISPLAY}" ] && [ -z "${DISPLAY}" ]; then
+			local env_block
+			env_block=$(tr '\0' '\n' < /proc/self/environ 2>/dev/null)
+			
+			if ! echo "$env_block" | grep -qE "^(DISPLAY|WAYLAND_DISPLAY)="; then
+				local p
+				for p in $(pgrep -u "${USER}"); do
+					if [ -r "/proc/$p/environ" ]; then
+						env_block=$(tr '\0' '\n' < "/proc/$p/environ" 2>/dev/null)
+						if echo "$env_block" | grep -qE "^(DISPLAY|WAYLAND_DISPLAY)="; then
+							break
+						fi
+					fi
+				done
+			fi
+			eval "$(echo "$env_block" | grep -E '^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR)=')"
+		fi
+
+		if [ -n "${WAYLAND_DISPLAY}" ] || [ -n "${DISPLAY}" ] || [ -S "${XDG_RUNTIME_DIR}/wayland-0" ]; then
+			export DISPLAY="${DISPLAY:-:0}"
+			export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
+			return 0
+		fi
+		
+		sleep 0.5
+		attempt=$((attempt + 1))
+	done
+
+	eerror "droidvalds: timed out waiting for graphical display environment"
+	return 1
+}
