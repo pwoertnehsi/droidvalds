@@ -6,6 +6,12 @@ Simple bash script coupled with a systemd service that will run on each user ses
 systemctl --user disable droidvalds.service
 ```
 
+For those unlucky enough to end up with an openrc system, a patch providing a service was submitted recently:
+
+```
+rc-service --user del droidvalds
+```
+
 Script can also be ran via:
 
 ```
